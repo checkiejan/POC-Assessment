@@ -20,7 +20,7 @@ const AssignmentForm = ({mission})=>{
                 console.log(res.data.openAIResponse);
                 
                 let text = JSON.parse(res.data.openAIResponse.content);
-                let temp = `${text["task description"]}\n${text["task"]} ${text["task instruction"]}`;
+                let temp = `${text["improvement_description"]} Rewrite this part:\n${text["part_need_to_be_improved"]}`;
                 console.log(text);
                 setIsLoading(false);
                 setText(temp)

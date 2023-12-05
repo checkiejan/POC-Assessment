@@ -1,4 +1,5 @@
 const OpenAI = require("openai");
+const Assignment = require("../models/Assignment");
 require('dotenv').config();
 exports.getPosts = async (req,res, next) =>{
     res.status(200).json({
@@ -10,15 +11,24 @@ exports.createSuggestion = async (req,res) =>{
     const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
     }); 
+    prompt =
+        "Instruction:  take brief improvement from teacher and essay from student" +
+        "Instruction: based on a brief improvement description by teacher, extract relavant parts from the essay of the student, then if make the student re-write that specific parts of the essay."+
+        "Present that part to student then tell them how to adjust based on the description to practise and give detailed instruction on how they should do it in theory but not step by step."+ 
+        "Instruction: response in JSON format like this: \n improvement_description:\n part_need_to_be_improved:\n"+
+        "Instruction: improvement_description need to be specific and sound friendly to students by giving them detailed instruction";
+
     const handleSuggest = async ()=>{
+        let assign = await Assignment.getStudentText(2);
         const chatCompletion = await openai.chat.completions.create({
             // messages: [
             //     {"role": "system", "content": "Response with JSON, Task description: based on a brief improvement description by teacher, write 1-2 example tasks for students to practise and give instruction on how they should do it. with this example:\n mission: please ensure to write more compelling opening. \n tasks: in your criteria response, I set you the mission of writing more compelling opening. please try to re-write your opening below, making your response as engaging as possible: 'today is a good day and I'm excited for school.'\n"},
             //     {"role": "user", "content": "in the future please follow the rules of writing dialouge"}
             // ],
             messages: [
-                {"role": "system", "content": "Response with JSON, Task description: based on a brief improvement description by teacher, write 1-2 example tasks for students to practise and give instruction on how they should do it in theory but not step by step. response in JSON format like this: \n task description:\n task:\ntask instruction:\n"},
-                {"role": "user", "content": `${req.body.short_description}`}
+                //{"role": "system", "content": "Response with JSON, Task description: based on a brief improvement description by teacher, write 1-2 example tasks for students to practise and give instruction on how they should do it in theory but not step by step. response in JSON format like this: \n task description:\n task:\ntask instruction:\n"},
+                {"role": "system", "content": `${prompt}`},
+                {"role": "user", "content": `brief improvement: ${req.body.short_description}, essay:${assign[0].studentText}`}
             ],
             // model: "gpt-3.5-turbo-1106",
             model: process.env.MODEL_FINTUNED,
@@ -38,3 +48,4 @@ exports.createSuggestion = async (req,res) =>{
         res.status(500).json({ message: "Error in fetching data from OpenAI", error: error.message });
     }
 }
+
