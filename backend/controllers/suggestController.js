@@ -19,7 +19,7 @@ exports.createSuggestion = async (req,res) =>{
         "Instruction: improvement_description need to be specific and sound friendly to students by giving them detailed instruction";
 
     const handleSuggest = async ()=>{
-        let assign = await Assignment.getStudentText(2);
+        let assign = await Assignment.getStudentText(1);
         const chatCompletion = await openai.chat.completions.create({
             // messages: [
             //     {"role": "system", "content": "Response with JSON, Task description: based on a brief improvement description by teacher, write 1-2 example tasks for students to practise and give instruction on how they should do it. with this example:\n mission: please ensure to write more compelling opening. \n tasks: in your criteria response, I set you the mission of writing more compelling opening. please try to re-write your opening below, making your response as engaging as possible: 'today is a good day and I'm excited for school.'\n"},
@@ -28,7 +28,7 @@ exports.createSuggestion = async (req,res) =>{
             messages: [
                 //{"role": "system", "content": "Response with JSON, Task description: based on a brief improvement description by teacher, write 1-2 example tasks for students to practise and give instruction on how they should do it in theory but not step by step. response in JSON format like this: \n task description:\n task:\ntask instruction:\n"},
                 {"role": "system", "content": `${prompt}`},
-                {"role": "user", "content": `brief improvement: ${req.body.short_description}, essay:${assign[0].studentText}`}
+                {"role": "user", "content": `brief improvement: ${req.body.short_description}, essay:${assign[0].StudentText}`}
             ],
             // model: "gpt-3.5-turbo-1106",
             model: process.env.MODEL_FINTUNED,
@@ -49,3 +49,13 @@ exports.createSuggestion = async (req,res) =>{
     }
 }
 
+exports.getAssignmentDescription = async (req,res)=>{
+    try{
+        let assign = await Assignment.getAssignment(1);
+        res.status(200).json({
+            assignment: assign[0].description
+        });
+    } catch(error){
+        res.status(500).json({ message: "Error in fetching data from database", error: error.message });
+    }
+}

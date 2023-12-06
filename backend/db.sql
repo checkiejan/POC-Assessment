@@ -4,20 +4,27 @@ USE POC;
 
 DROP TABLE IF EXISTS Assignment;
 CREATE TABLE Assignment (
-    AssignmentID INT AUTO_INCREMENT  PRIMARY KEY,
-    description TEXT,
-    studentText TEXT
+    AssignmentID INT AUTO_INCREMENT PRIMARY KEY,
+    description TEXT
 );
 
 DROP TABLE IF EXISTS Mission;
 CREATE TABLE Mission (
-    MissionID INT AUTO_INCREMENT  PRIMARY KEY,
+    MissionID INT AUTO_INCREMENT PRIMARY KEY,
     AssignmentID INT,
-    shortDescription TEXT,
+    shortDescription VARCHAR(255),
     fullDescription TEXT,
     finished BOOLEAN,
-    dateCreated DATE,
-    due DATE,
+    dateCreated DATETIME,
+    due DATETIME,
+    FOREIGN KEY (AssignmentID) REFERENCES Assignment(AssignmentID)
+);
+
+DROP TABLE IF EXISTS StudentSubmission;
+CREATE TABLE StudentSubmission (
+    SubmissionID INT AUTO_INCREMENT PRIMARY KEY,
+    AssignmentID INT,
+    StudentText TEXT,
     FOREIGN KEY (AssignmentID) REFERENCES Assignment(AssignmentID)
 );
 

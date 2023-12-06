@@ -1,12 +1,26 @@
 const db = require("./DB");
 class Assignment{
-    constructor(escription, studentText){
+    constructor(description, studentText){
         this.description = description;
         this. studentText = studentText;
     }
     static async getStudentText(id){
         return new Promise((resolve, reject)=>{
-            db.query(`SELECT description, studentText FROM Assignment WHERE AssignmentID = ${id}`,  (err,res)=>{
+            db.query(`SELECT ss.StudentText, a.Description
+            FROM StudentSubmission ss
+            JOIN Assignment a ON ss.AssignmentID = a.AssignmentID
+            WHERE ss.AssignmentID = ${id};`,  (err,res)=>{
+                if(err){
+                    console.log(err);
+                    return reject(err);
+                }
+                resolve(res);
+            })
+        })
+    }
+    static async getAssignment(id){
+        return new Promise((resolve, reject)=>{
+            db.query(`SELECT description from Assignment WHERE AssignmentID = ${id}`,  (err,res)=>{
                 if(err){
                     console.log(err);
                     return reject(err);

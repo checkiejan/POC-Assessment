@@ -5,4 +5,5 @@ const router = express.Router()
 
 router.get("/post", suggestController.getPosts);
 router.post("/", suggestController.createSuggestion);
+router.post("/assignment", suggestController.getAssignmentDescription);
 module.exports = router;
