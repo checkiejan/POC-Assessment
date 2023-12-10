@@ -5,4 +5,5 @@ const router = express.Router()
 router.post("/", missionController.getPosts);
 router.post("/add", missionController.addMission);
 router.post("/get", missionController.getAllMissionsByAssignmentID);
+router.post("/delete",missionController.deleteMission)
 module.exports = router;

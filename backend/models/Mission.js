@@ -42,6 +42,21 @@ class Mission{
             });
         });
     }
+    static async deleteMission(MissionID, AssignmentID) {
+        return new Promise((resolve, reject) => {
+            // The SQL query now checks for both MissionID and AssignmentID
+            const query = 'DELETE FROM Mission WHERE MissionID = ? AND AssignmentID = ?';
+    
+            // Execute the query with both MissionID and AssignmentID
+            db.query(query, [MissionID, AssignmentID], (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+    }
     
 }
 module.exports = Mission;

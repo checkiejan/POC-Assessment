@@ -6,7 +6,7 @@ import Assignment from "./Assessment/Assignment";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Dashboard/>} />
+      <Route path="/" element={<Assignment/>} />
       <Route path="/mission" element={<Mission/>} />
       <Route path="/assignment" element={<Assignment/>} />
     </Routes>

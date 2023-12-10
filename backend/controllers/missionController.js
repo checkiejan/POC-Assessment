@@ -61,3 +61,30 @@ exports.getAllMissionsByAssignmentID = async (req, res) => {
         res.status(500).json({ message: "Error in fetching missions", error: error.message });
     }
 }
+
+exports.deleteMission = async (req, res) => {
+    try {
+        // Check if both MissionID and AssignmentID are provided in the request body
+        if (!req.body.missionID || !req.body.assignmentID) {
+            return res.status(400).json({ message: "Both 'missionID' and 'assignmentID' parameters are required." });
+        }
+
+        const missionID = req.body.missionID;
+        const assignmentID = req.body.assignmentID;
+
+        // Use the Mission model's static method to delete the mission from the database.
+        const result = await Mission.deleteMission(missionID, assignmentID);
+
+        // Check if any rows were affected (i.e., if the mission was actually deleted)
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Mission not found." });
+        }
+
+        res.status(200).json({
+            message: "Mission deleted successfully",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error in deleting mission", error: error.message });
+    }
+};
+

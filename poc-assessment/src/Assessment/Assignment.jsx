@@ -36,7 +36,7 @@ const Assignment = ()=>{
             <AssignmentDescription description= {description}/>
             <h2 className="text-xl font-semibold text-center mb-2">Student Problems</h2>
             <SkillForm fetchMission={fetchMissions}/>
-            <Dashboard missions={missions}/>
+            <Dashboard missions={missions} fetchMissions={fetchMissions}/>
         </div>
     );
 }
