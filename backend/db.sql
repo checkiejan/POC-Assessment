@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS Mission;
 CREATE TABLE Mission (
     MissionID INT AUTO_INCREMENT PRIMARY KEY,
     AssignmentID INT,
+    Skill VARCHAR(255),
     shortDescription VARCHAR(255),
     fullDescription TEXT,
     finished BOOLEAN,

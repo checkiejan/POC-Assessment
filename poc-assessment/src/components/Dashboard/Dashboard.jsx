@@ -1,16 +1,16 @@
-const Dashboard = ()=>{
-    const missions = [
-        {
-            id:1, 
-            skill: "opening",
-            description: "in the future, please ensure to ensure a more compelling opening",
-        },
-        {
-            id:2, 
-            skill: "Dialouge",
-            description: "in the future please follow the rule of writing dialouge",
-        },
-    ]
+const Dashboard = ({missions})=>{
+    // const missions = [
+    //     {
+    //         id:1, 
+    //         skill: "opening",
+    //         description: "in the future, please ensure to ensure a more compelling opening",
+    //     },
+    //     {
+    //         id:2, 
+    //         skill: "Dialouge",
+    //         description: "in the future please follow the rule of writing dialouge",
+    //     },
+    // ]
     return (
         <>
         <a href="/mission"  className="block">
@@ -25,13 +25,13 @@ const Dashboard = ()=>{
             {
                 missions.map((mission) => {
                                 return (
-                                    <tr key={mission.id}>
+                                    <tr key={mission.MissionID}>
                                         <td data-label="Status" className="p-2">
-                                            <p className={"status  status-" + mission.skill}>
-                                                {mission.skill.toUpperCase()}
+                                            <p className={"status  status-" + mission.Skill}>
+                                                {mission.Skill.toUpperCase()}
                                             </p>
                                         </td>
-                                        <td data-label="mission" className="p-2">{mission.description}</td>
+                                        <td data-label="mission" className="p-2">{mission.shortDescription}</td>
                                     </tr>
                                 );
                             })

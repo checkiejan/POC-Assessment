@@ -15,7 +15,7 @@ const AssignmentForm = ({mission})=>{
         if(!isLoading){
             setIsLoading(true);
             axios.post("http://localhost:8080/api/suggest",{
-                "short_description" : mission.description,
+                "short_description" : mission.shortDescription,
             }).then(res=>{
                 console.log(res.data.openAIResponse);
                 
@@ -34,9 +34,9 @@ const AssignmentForm = ({mission})=>{
         setText(event.target.value);
     };
     return <div className="mx-auto w-1/2">
-        <p>{mission.skill}</p>
         <h1 className="text-xl font-bold mb-4">Mission {mission.id}</h1>
-        <p>{mission.description}</p>
+        <p>Skill: {mission.Skill}</p>
+        <p>{mission.shortDescription}</p>
         <form onSubmit={handleSubmit}>
             <div className="mb-4">
                 <label htmlFor="textArea" className="block text-gray-700 text-sm font-bold mb-2">

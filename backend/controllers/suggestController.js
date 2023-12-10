@@ -2,7 +2,9 @@ const OpenAI = require("openai");
 const Assignment = require("../models/Assignment");
 require('dotenv').config();
 exports.getPosts = async (req,res, next) =>{
+    console.log(req)
     res.status(200).json({
+        req: req.body,
         posts: [{title: "First Post", content: "this is the first post!"}]
     });
 };
@@ -12,11 +14,11 @@ exports.createSuggestion = async (req,res) =>{
         apiKey: process.env.OPENAI_API_KEY,
     }); 
     prompt =
-        "Instruction:  take brief improvement from teacher and essay from student" +
-        "Instruction: based on a brief improvement description by teacher, extract relavant parts from the essay of the student, then if make the student re-write that specific parts of the essay."+
-        "Present that part to student then tell them how to adjust based on the description to practise and give detailed instruction on how they should do it in theory but not step by step."+ 
-        "Instruction: response in JSON format like this: \n improvement_description:\n part_need_to_be_improved:\n"+
-        "Instruction: improvement_description need to be specific and sound friendly to students by giving them detailed instruction";
+    "Instruction:  take brief improvement from teacher and essay from student" +
+    "Instruction: based on a brief improvement description by teacher, extract relavant parts from the essay of the student, then if make the student re-write that specific parts of the essay."+
+    "Present that part to student then tell them how to adjust based on the description to practise and give detailed instruction on how they should do it in theory but not step by step."+ 
+    "Instruction: response in JSON format like this: \n improvement_description:\n part_need_to_be_improved:\n"+
+    "Instruction: improvement_description need to be specific and sound friendly to students by giving them detailed instruction";
 
     const handleSuggest = async ()=>{
         let assign = await Assignment.getStudentText(1);
@@ -46,16 +48,5 @@ exports.createSuggestion = async (req,res) =>{
         });
     } catch (error) {
         res.status(500).json({ message: "Error in fetching data from OpenAI", error: error.message });
-    }
-}
-
-exports.getAssignmentDescription = async (req,res)=>{
-    try{
-        let assign = await Assignment.getAssignment(1);
-        res.status(200).json({
-            assignment: assign[0].description
-        });
-    } catch(error){
-        res.status(500).json({ message: "Error in fetching data from database", error: error.message });
     }
 }

@@ -1,23 +1,27 @@
 import AssignmentForm from "./AssignmentForm";
+import { useEffect, useState } from "react";
+import axios from "axios";
 const Mission = ()=>{
-    const missions = [
-        {
-            id:1, 
-            skill: "opening",
-            description: "in the future, please ensure to ensure a more compelling opening",
-        },
-        {
-            id:2, 
-            skill: "Dialouge",
-            description: "in the future please follow the rule of writing dialouge",
-        },
-    ]
+    const [missions, setMissions] = useState([]);
+
+    const fetchMissions = async() =>{
+        axios.post("http://localhost:8080/api/mission/get",{
+            "assignmentID" : 1,
+        }).then(res=>{
+            setMissions(res.data.missions);
+        }).catch(err=>{
+            console.log(err);
+        })
+    }
+    useEffect(()=>{
+        fetchMissions();
+    },[])
     return (
         <div>
             {
                 missions.map((mission)=>{
                     return (
-                        <AssignmentForm key = {mission.id} mission={mission}/>
+                        <AssignmentForm key = {mission.MissionID} mission={mission}/>
                     )
                 })
             } 
