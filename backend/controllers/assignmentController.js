@@ -7,7 +7,6 @@ exports.getPosts = async (req,res, next) =>{
 };
 
 exports.getAssignmentDescription = async (req,res)=>{
-    console.log(req.body.AssignmentID);
     try{
         let assign = await Assignment.getAssignment(req.body.AssignmentID);
         res.status(200).json({
