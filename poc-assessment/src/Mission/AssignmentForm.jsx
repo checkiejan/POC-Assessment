@@ -14,13 +14,13 @@ const AssignmentForm = ({mission})=>{
         event.preventDefault();
         if(!isLoading){
             setIsLoading(true);
-            axios.post("http://localhost:8080/api/suggest",{
+            axios.post("http://localhost:8080/api/suggest/v2",{
                 "short_description" : mission.shortDescription,
             }).then(res=>{
                 console.log(res.data.openAIResponse);
                 
-                let text = JSON.parse(res.data.openAIResponse.content);
-                let temp = `${text["improvement_description"]} Rewrite this part:\n${text["part_need_to_be_improved"]}`;
+                let text = JSON.parse(res.data.openAIResponse);
+                let temp = `${text["improvement_description"]}\n${text["specific_instruction_to_student"]} You can try to rewrite this part:\n${text["student_revise_essay"]}`;
                 console.log(text);
                 setIsLoading(false);
                 setText(temp)
