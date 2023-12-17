@@ -1,14 +1,58 @@
 import { useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
+import Modal from "./Modal";
 import axios from "axios";
+
 const AssignmentForm = ({mission})=>{
     const [text, setText] = useState('');
     const [isLoading, setIsLoading] = useState(false); 
+    const [showModal, setShowModal] = useState(false); // State to control the modal visibility
+    const [suggestion, setSuggestion] = useState('');
+    const [initialPrompt, setInitialPrompt] =  useState("");
+    const [botResponse, setBotResponse] = useState("");
     const handleSubmit = (event) => {
         event.preventDefault();
         // Handle the form submission logic here
         // console.log('Submitted Text:', text);
         console.log(process.env.REACT_APP_OPENAI_API_KEY);
+    };
+    const handleImprovementChange = async (event) => {
+        setSuggestion(event.target.value);
+    };
+
+    const handleModalSubmit = (event) => {
+        event.preventDefault();
+        setIsLoading(true);
+        console.log("Improvement Suggestion:", suggestion);
+        // setShowModal(false);
+        axios.post("http://localhost:8080/api/suggest/adjust",{
+            request: suggestion,
+            initialPrompt: initialPrompt,
+            bot_response: botResponse,
+        })
+        .then(res=>{
+            console.log(res.data);
+            let result = "";
+            try{
+                let temp = JSON.parse(res.data.openAIResponse);
+                for (const key in temp) {
+                    // Check if the property is a string
+                    if (typeof temp[key] === 'string') {
+                        result += temp[key] + "\n";  // Append the string value and a newline
+                    }
+                }
+            }
+            catch{
+                result = res.data.openAIResponse;
+            }
+            setText(result);
+            setSuggestion("");
+            setIsLoading(false);
+        }).catch(err=>{
+            console.log(err);
+            setIsLoading(false);
+        })
+        
     };
     const handleSuggest = async (event)=>{
         event.preventDefault();
@@ -17,13 +61,15 @@ const AssignmentForm = ({mission})=>{
             axios.post("http://localhost:8080/api/suggest/v2",{
                 "short_description" : mission.shortDescription,
             }).then(res=>{
-                console.log(res.data.openAIResponse);
-                
+                console.log(res.data.openAIResponse);         
                 let text = JSON.parse(res.data.openAIResponse);
-                let temp = `${text["improvement_description"]}\n${text["specific_instruction_to_student"]} You can try to rewrite this part:\n${text["student_revise_essay"]}`;
+                let temp = `${text["improvement_description"]}\n\n${text["specific_instruction_to_student"]} \n\n${text["task_to_do"]}\n\n${text["student_revise_essay"]}`;
                 console.log(text);
                 setIsLoading(false);
-                setText(temp)
+                setText(temp);
+                setShowModal(true); // Show the modal after getting response
+                setInitialPrompt(res.data.initialPrompt);
+                setBotResponse(res.data.openAIResponse);
             }).catch(err=>{
                 console.log(err);
                 setIsLoading(false);
@@ -33,7 +79,7 @@ const AssignmentForm = ({mission})=>{
     const handleChange = (event) => {
         setText(event.target.value);
     };
-    return <div className="mx-auto w-1/2">
+    return <div className="mx-auto w-1/2 relative">
         <h1 className="text-xl font-bold mb-4">Mission {mission.id}</h1>
         <p>Skill: {mission.Skill}</p>
         <p>{mission.shortDescription}</p>
@@ -74,6 +120,16 @@ const AssignmentForm = ({mission})=>{
             </div>
             
         </form>
+        {showModal && (
+                <Modal 
+                    onClose={() => setShowModal(false)} 
+                    onSubmit={handleModalSubmit}
+                    suggestion={suggestion}
+                    onSuggestionChange={handleImprovementChange}
+                >
+                    <p>Is there anything you need to improve?</p>
+                </Modal>
+            )}
     </div>
 }
 export default AssignmentForm
