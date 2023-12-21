@@ -1,5 +1,6 @@
 import { useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
+import ResponseVersion from "./ResponseVersion";
 import Modal from "./Modal";
 import axios from "axios";
 
@@ -7,6 +8,8 @@ const AssignmentForm = ({mission})=>{
     const [text, setText] = useState('');
     const [isLoading, setIsLoading] = useState(false); 
     const [showModal, setShowModal] = useState(false); // State to control the modal visibility
+    const [responses, setResponses] = useState([]);
+    const [currentVersion, setCurrentVersion] = useState(0);
     const [suggestion, setSuggestion] = useState('');
     const [initialPrompt, setInitialPrompt] =  useState("");
     const [botResponse, setBotResponse] = useState("");
@@ -18,6 +21,10 @@ const AssignmentForm = ({mission})=>{
     };
     const handleImprovementChange = async (event) => {
         setSuggestion(event.target.value);
+    };
+    const switchVersion = (version) => {
+        setCurrentVersion(version);
+        setText(responses[version]);
     };
 
     const handleModalSubmit = (event) => {
@@ -45,6 +52,10 @@ const AssignmentForm = ({mission})=>{
             catch{
                 result = res.data.openAIResponse;
             }
+            setResponses(prevResponses => [...prevResponses, result]);
+            setCurrentVersion(prevCurrentVersion => {
+                return prevCurrentVersion + 1;
+            });
             setText(result);
             setSuggestion("");
             setIsLoading(false);
@@ -70,6 +81,7 @@ const AssignmentForm = ({mission})=>{
                 setShowModal(true); // Show the modal after getting response
                 setInitialPrompt(res.data.initialPrompt);
                 setBotResponse(res.data.openAIResponse);
+                setResponses(prevResponses => [...prevResponses, temp]);
             }).catch(err=>{
                 console.log(err);
                 setIsLoading(false);
@@ -120,6 +132,13 @@ const AssignmentForm = ({mission})=>{
             </div>
             
         </form>
+        {responses.length > 1 && (
+                <ResponseVersion 
+                    responses={responses} 
+                    currentVersion={currentVersion} 
+                    switchVersion={switchVersion} 
+                />
+            )}
         {showModal && (
                 <Modal 
                     onClose={() => setShowModal(false)} 

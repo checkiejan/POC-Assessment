@@ -73,20 +73,31 @@ exports.createSuggestionV2 = async (req,res)=>{
         const vectorStore = new PineconeStoreModule.PineconeStore( OpenAIEmbeddings,
             { pineconeIndex})
         let prompt_template = `
-        Instruction:  take brief improvement from teacher, essay from student and relevant information from materials provided by teacher
-        Instruction: based on a brief improvement description by teacher, extract relavant parts from the essay of the student, then if needed, make the student re-write that specific parts of the essay.
-        Present that part to student then tell them how to adjust based on the description to practise and give detailed instruction on how they should do it in theory but not step by step. 
-        Instruction: response in JSON format like this:   improvement_description:\n specific_instruction_to_student:\n student_revise_essay:\n task_to_do:\n
-        Instruction: improvement_description need to be specific, detailed and sound friendly to students by giving them detailed instructions with information based on the teaching material to mention the lessons for student.
-        and it should contain the particulart student essay part repeat the part the student need to re-write. the specific instruction should be detailed and based on teaching material to help student revise lesso
-        at the end of specific instruction, you can add one sentence to tell student to do what you want friendly and encouraging
-        brief improvement:{improvement} 
-        student essay: {essay}
-        teaching material:{context}
-        Instruction: response in JSON format like this: improvement_description:\n specific_instruction_to_student:\n student_revise_essay:\n task_to_do:\n
-        Instruction: improvement_description need to be specific, detailed and sound friendly to students by giving them detailed instructions with information based on the teaching material to mention the lessons for student.
-        and it should contain the particulart student essay part repeat the part the student need to re-write. the specific instruction should be detailed and based on teaching material to help student revise lesso
-        at the end of specific instruction, you can add one sentence to tell student to do what you want friendly and encouraging
+        Objective:
+        Utilize the teacher's brief improvement notes, the student's essay, and the provided teaching materials to guide the student in revising their essay. 
+        Extract relevant portions of the student's essay that correspond to the teacher's improvement suggestions.
+        Instruct the student on how to adjust these sections, offering detailed but theoretical guidance rather than step-by-step instructions.
+      
+        Inputs:
+        Brief Improvement: {improvement}
+        Student Essay: {essay}
+        Teaching Material: {context}
+        Feedback Task:
+        Identify and extract the specific parts of the student's essay that require revision based on the teacher's improvement notes.
+        Craft a detailed and student-friendly improvement description that incorporates relevant information from the teaching materials.
+        Provide specific instructions to the student on how to revise the identified essay parts, using the teaching material as a reference.
+        Conclude with a friendly and encouraging statement that motivates the student to apply the guidance.
+        Response Format:
+        Your response should be structured in JSON format, with the following fields:
+      
+        
+          "improvement_description": <detailed_improvement_description_here>,
+          "specific_instruction_to_student": <specific_instruction_here>,
+          "student_revise_essay": <section_of_essay_to_be_revised>,
+          "task_to_do": <encouraging_statement_for_student_to_practice_revision>
+        
+        The improvement_description should be clear, specific, and supportive, highlighting the lesson objectives and the essay section to be rewritten. The specific_instruction_to_student should guide the student in how to conceptually revise their work, leveraging insights from the teaching material.
+        
         `
         
         const PROMPT = new PromptTemplate.PromptTemplate({
@@ -102,7 +113,7 @@ exports.createSuggestionV2 = async (req,res)=>{
         const search_extracted = search.map(x=>x.pageContent);
         const llm = new ChatOpenAI.ChatOpenAI({
             temperature: 0.5,
-            modelName: 'gpt-3.5-turbo-1106',
+            modelName: 'gpt-4-1106-preview',
             openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
           });
         const query = await PROMPT.format({
