@@ -8,17 +8,28 @@ CREATE TABLE Assignment (
     description TEXT
 );
 
+DROP TABLE IF EXISTS Iteration;
+CREATE TABLE Iteration (
+    IterationID INT AUTO_INCREMENT PRIMARY KEY,
+    AssignmentID INT,
+    shortDescription VARCHAR(255),
+    dateCreated DATETIME,
+    FOREIGN KEY (AssignmentID) REFERENCES Assignment(AssignmentID)
+);
+
 DROP TABLE IF EXISTS Mission;
 CREATE TABLE Mission (
     MissionID INT AUTO_INCREMENT PRIMARY KEY,
-    AssignmentID INT,
+    IterationID INT,
     Skill VARCHAR(255),
     shortDescription VARCHAR(255),
     fullDescription TEXT,
     finished BOOLEAN,
     dateCreated DATETIME,
     due DATETIME,
-    FOREIGN KEY (AssignmentID) REFERENCES Assignment(AssignmentID)
+    mark DECIMAL(5,2),
+    feedback TEXT,
+    FOREIGN KEY (IterationID) REFERENCES Iteration(IterationID)
 );
 
 DROP TABLE IF EXISTS StudentSubmission;

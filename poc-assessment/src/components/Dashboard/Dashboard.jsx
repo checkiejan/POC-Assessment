@@ -11,7 +11,7 @@ const Dashboard = ({missions,fetchMissions })=>{
             // Handle the response from the server
             console.log(response.data);
             // Optionally, you can refresh the list of missions here
-            fetchMissions();
+            // fetchMissions();
         })
         .catch(error => {
             // Handle any errors here

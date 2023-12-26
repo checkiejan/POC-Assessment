@@ -8,7 +8,7 @@ exports.getPosts = async (req,res, next) =>{
 exports.addMission = async (req, res) => {
     try {
         // Validate that only 'skill' and 'shortDescription' are present in the request body
-        const requiredAttributes = ['skill', 'shortDescription', 'assignmentID'];
+        const requiredAttributes = ['skill', 'shortDescription', 'iterationID'];
         const requestAttributes = Object.keys(req.body);
 
         // Check if all required attributes are present and that there are no additional attributes
@@ -16,14 +16,14 @@ exports.addMission = async (req, res) => {
                                requestAttributes.length === requiredAttributes.length;
 
         if (!isValidRequest) {
-            return res.status(400).json({ message: "Request must include exactly 'skill, 'shortDescription' and 'assignmentID'." });
+            return res.status(400).json({ message: "Request must include exactly 'skill, 'shortDescription' and 'iterationID'." });
         }
 
         // Assuming req.body has all the necessary fields to create a new mission.
         const newMissionData = {
             Skill: req.body.skill,
             shortDescription: req.body.shortDescription,
-            assignmentID:  req.body.assignmentID,
+            iterationID:  req.body.iterationID,
         };
 
         // Now, use the Mission model's static method to create a new mission entry in the database.
@@ -42,16 +42,15 @@ exports.addMission = async (req, res) => {
 
 
 // You would also implement other functions for different operations like getting all missions
-exports.getAllMissionsByAssignmentID = async (req, res) => {
+exports.getAllMissionsByIterationID = async (req, res) => {
     try {
-
-        // Check if the assignmentID is provided in the body and is of the correct type
-        if (!req.body.assignmentID || typeof req.body.assignmentID !== 'number') {
-            return res.status(400).json({ message: "The 'assignmentID' parameter is required and must be a number." });
+        // Check if the iterationID is provided in the body and is of the correct type
+        if (!req.body.iterationID || typeof req.body.iterationID !== 'number') {
+            return res.status(400).json({ message: "The 'iterationID' parameter is required and must be a number." });
         }
 
-        const assignmentID = req.body.assignmentID;
-        const missions = await Mission.getAllMission(assignmentID);
+        const iterationID = req.body.iterationID;
+        const missions = await Mission.getAllMission(iterationID);
 
         res.status(200).json({
             message: "Missions fetched successfully",
@@ -64,16 +63,16 @@ exports.getAllMissionsByAssignmentID = async (req, res) => {
 
 exports.deleteMission = async (req, res) => {
     try {
-        // Check if both MissionID and AssignmentID are provided in the request body
-        if (!req.body.missionID || !req.body.assignmentID) {
-            return res.status(400).json({ message: "Both 'missionID' and 'assignmentID' parameters are required." });
+        // Check if both MissionID and iterationID are provided in the request body
+        if (!req.body.missionID || !req.body.iterationID) {
+            return res.status(400).json({ message: "Both 'missionID' and 'iterationID' parameters are required." });
         }
 
         const missionID = req.body.missionID;
-        const assignmentID = req.body.assignmentID;
+        const iterationID = req.body.iterationID;
 
         // Use the Mission model's static method to delete the mission from the database.
-        const result = await Mission.deleteMission(missionID, assignmentID);
+        const result = await Mission.deleteMission(missionID, iterationID);
 
         // Check if any rows were affected (i.e., if the mission was actually deleted)
         if (result.affectedRows === 0) {

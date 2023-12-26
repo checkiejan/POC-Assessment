@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useActionData } from "react-router-dom";
 import axios from "axios";
-const SkillForm = ({fetchMission})=>{
+const SkillForm = ({iterationID,fetchMission})=>{
     const [formData, setFormData] = useState({
         skill: "",
         description: ""
@@ -15,12 +14,12 @@ const SkillForm = ({fetchMission})=>{
     };
     const handleAdd = ()=>{
         axios.post("http://localhost:8080/api/mission/add",{
-            "assignmentID" : 1,
+            "assignmentID" : iterationID,
             "skill": formData.skill,
             "shortDescription": formData.description,
         }).then(res=>{
            console.log(res);
-           fetchMission();
+        //    fetchMission();
         }).catch(err=>{
             console.log(err);
         })
