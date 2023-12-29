@@ -2,7 +2,7 @@ import AssignmentDescription from "./AssignmentDescription";
 import Dashboard from "../components/Dashboard/Dashboard";
 import LoadingSpinner from "../common/LoadingSpinner";
 import Iteration from "./Iteration";
-import SkillForm from "./SkillForm";
+import IterationForm from "./IterationForm";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
@@ -12,7 +12,7 @@ const Assignment = () => {
     const [missions, setMissions] = useState([]);
     const [iterations, setIterations] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [showIterationForm, setShowIterationForm] = useState(false); 
     const fetchMissions = async () => {
         try {
             const res = await axios.post("http://localhost:8080/api/mission/get", {
@@ -23,7 +23,9 @@ const Assignment = () => {
             console.log(err);
         }
     }
-
+    const toggleIterationForm = () => {
+        setShowIterationForm(!showIterationForm); // Toggle the state to show/hide SkillForm
+    };
     const fetchIterations = async () => {
         try {
             const res = await axios.post("http://localhost:8080/api/assignment/fetch-mission", {
@@ -64,12 +66,15 @@ const Assignment = () => {
             <h2 className="text-xl font-semibold text-center mb-2">Student Text</h2>
             <AssignmentDescription description={studentText} />
             <h2 className="text-xl font-semibold text-center mb-2">Iterations</h2>
+            <button 
+                className="bg-blue-500 mb-4 text-white rounded-full py-2 px-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50 transition ease-in-out duration-300"
+                onClick={toggleIterationForm} >
+                {showIterationForm ? 'Hide Iteration Form' : 'Add Iteration'}
+            </button>
+            {showIterationForm && <IterationForm assignmentID={1} />}
             {loading ? <LoadingSpinner/> : iterations.map((iteration) => (
                 <Iteration key={iteration.IterationID} iteration={iteration} />
             ))}
-            {/* Uncomment the lines below when you want to use these components */}
-            {/* <SkillForm fetchMission={fetchMissions} />
-            <Dashboard missions={missions} fetchMissions={fetchMissions} /> */}
         </div>
     );
 }

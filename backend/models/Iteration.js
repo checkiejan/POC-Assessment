@@ -4,7 +4,7 @@ class Iteration{
     constructor(assignmentID, shortDescription, dateCreated) {
         this.assignmentID = assignmentID;
         this.shortDescription = shortDescription;
-        this.dateCreated = dateCreated || new Date().toISOString(); // Set dateCreated to today's date if not provided
+        this.dateCreated = dateCreated || new Date().toISOString().replace('T', ' ').substring(0, 19); // Set dateCreated to today's date if not provided
     }
     static async createIteration(iteration) {
         return new Promise((resolve, reject) => {

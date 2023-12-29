@@ -1,17 +1,17 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-const Dashboard = ({missions,fetchMissions })=>{
+import Iteration from "../../Assessment/Iteration";
+const Dashboard = ({missions,fetchMissions, iterationID })=>{
     const navigate = useNavigate();
-    const handleDelete = (missionID, assignmentID)=>{
+    const handleDelete = (missionID)=>{
         axios.post('http://localhost:8080/api/mission/delete', {
-            "assignmentID": 1,
             "missionID": missionID
         })
         .then(response => {
             // Handle the response from the server
             console.log(response.data);
             // Optionally, you can refresh the list of missions here
-            // fetchMissions();
+            fetchMissions();
         })
         .catch(error => {
             // Handle any errors here
@@ -20,7 +20,7 @@ const Dashboard = ({missions,fetchMissions })=>{
         
     }
     const navigateToMission = ()=>{
-        navigate("/mission");
+        navigate(`/iteration/${iterationID}`);
     }
     return (
         <>

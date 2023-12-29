@@ -13,7 +13,7 @@ class Mission{
             const { Skill, shortDescription, iterationID } = mission;
             console.log(mission);
             // Set dateCreated to today's date in the format that your database requires (e.g., YYYY-MM-DD for SQL databases)
-            const dateCreated = new Date().toISOString().slice(0, 10);
+            const dateCreated = new Date().toISOString().replace('T', ' ').substring(0, 19);
     
             // Prepare the INSERT statement with placeholder values to prevent SQL injection.
             // Assuming the table is named 'Mission' and has the columns specified in your class diagram.
@@ -42,13 +42,13 @@ class Mission{
             });
         });
     }
-    static async deleteMission(MissionID, iterationID) {
+    static async deleteMission(MissionID) {
         return new Promise((resolve, reject) => {
-            // The SQL query now checks for both MissionID and AssignmentID
-            const query = 'DELETE FROM Mission WHERE MissionID = ? AND IterationID = ?';
+            // The SQL query now checks for both MissionID 
+            const query = 'DELETE FROM Mission WHERE MissionID = ?';
     
             // Execute the query with both MissionID and AssignmentID
-            db.query(query, [MissionID, iterationID], (err, result) => {
+            db.query(query, [MissionID], (err, result) => {
                 if (err) {
                     console.log(err);
                     return reject(err);

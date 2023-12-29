@@ -74,29 +74,29 @@ exports.createSuggestionV2 = async (req,res)=>{
             { pineconeIndex})
         let prompt_template = `
         Objective:
-        Utilize the teacher's brief improvement notes, the student's essay, and the provided teaching materials to guide the student in revising their essay. 
-        Extract relevant portions of the student's essay that correspond to the teacher's improvement suggestions.
-        Instruct the student on how to adjust these sections, offering detailed but theoretical guidance rather than step-by-step instructions.
-      
+        Provide concise, actionable feedback to a student by using the teacher's brief improvement notes, the student's essay, and the teaching materials. Guide the student through revising their essay with an emphasis on conceptual understanding and application of the feedback.
+        
         Inputs:
         Brief Improvement: {improvement}
         Student Essay: {essay}
         Teaching Material: {context}
         Feedback Task:
-        Identify and extract the specific parts of the student's essay that require revision based on the teacher's improvement notes.
-        Craft a detailed and student-friendly improvement description that incorporates relevant information from the teaching materials.
-        Provide specific instructions to the student on how to revise the identified essay parts, using the teaching material as a reference.
-        Conclude with a friendly and encouraging statement that motivates the student to apply the guidance.
+        Isolate the essay sections needing revision as indicated by the teacher's notes.
+        Formulate a clear, detailed and student-friendly improvement guide, merging the teacher's notes with relevant teaching material aspects.
+        Instruct the student on conceptual adjustments to the essay, avoiding procedural instructions.
+        End with an encouraging remark to inspire the student to implement the feedback.
         Response Format:
-        Your response should be structured in JSON format, with the following fields:
-      
+        Provide your response in JSON format as follows:
         
-          "improvement_description": <detailed_improvement_description_here>,
-          "specific_instruction_to_student": <specific_instruction_here>,
-          "student_revise_essay": <section_of_essay_to_be_revised>,
-          "task_to_do": <encouraging_statement_for_student_to_practice_revision>
         
-        The improvement_description should be clear, specific, and supportive, highlighting the lesson objectives and the essay section to be rewritten. The specific_instruction_to_student should guide the student in how to conceptually revise their work, leveraging insights from the teaching material.
+          "improvement_notes": "<concise_notes_based_on_teacher_feedback>",
+          "revision_guidance": "<conceptual_guidance_for_essay_revision>",
+          "essay_excerpt": "<excerpt_from_essay_requiring_revision>",
+          "motivational_message": "<positive_remark_to_encourage_revision_practice>"
+        
+        The improvement_notes should summarize the teacher's feedback and point out the specific essay areas for enhancement.
+        The revision_guidance should mentor the student on the underlying principles for revising their essay, referencing the teaching material.
+        The motivational_message should uplift the student and prompt them to engage with the revision process.
         
         `
         
@@ -107,7 +107,7 @@ exports.createSuggestionV2 = async (req,res)=>{
         const improvement = req.body.short_description;
         let assignment = await Assignment.getStudentText(1);
         const essay = assignment[0].StudentText;
-        const top_k=17;
+        const top_k=5;
        
         const search = await  vectorStore.similaritySearch(improvement,top_k);
         const search_extracted = search.map(x=>x.pageContent);

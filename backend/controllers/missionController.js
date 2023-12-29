@@ -64,15 +64,15 @@ exports.getAllMissionsByIterationID = async (req, res) => {
 exports.deleteMission = async (req, res) => {
     try {
         // Check if both MissionID and iterationID are provided in the request body
-        if (!req.body.missionID || !req.body.iterationID) {
-            return res.status(400).json({ message: "Both 'missionID' and 'iterationID' parameters are required." });
+        if (!req.body.missionID ) {
+            return res.status(400).json({ message: " 'missionID' parameters are required." });
         }
 
         const missionID = req.body.missionID;
-        const iterationID = req.body.iterationID;
+        // const iterationID = req.body.iterationID;
 
         // Use the Mission model's static method to delete the mission from the database.
-        const result = await Mission.deleteMission(missionID, iterationID);
+        const result = await Mission.deleteMission(missionID);
 
         // Check if any rows were affected (i.e., if the mission was actually deleted)
         if (result.affectedRows === 0) {
@@ -83,6 +83,7 @@ exports.deleteMission = async (req, res) => {
             message: "Mission deleted successfully",
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: "Error in deleting mission", error: error.message });
     }
 };

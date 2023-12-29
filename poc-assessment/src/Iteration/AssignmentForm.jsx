@@ -1,6 +1,7 @@
 import { useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ResponseVersion from "./ResponseVersion";
+import processRepsonse from "../utils/processResponse";
 import Modal from "./Modal";
 import axios from "axios";
 
@@ -39,19 +40,7 @@ const AssignmentForm = ({mission})=>{
         })
         .then(res=>{
             console.log(res.data);
-            let result = "";
-            try{
-                let temp = JSON.parse(res.data.openAIResponse);
-                for (const key in temp) {
-                    // Check if the property is a string
-                    if (typeof temp[key] === 'string') {
-                        result += temp[key] + "\n";  // Append the string value and a newline
-                    }
-                }
-            }
-            catch{
-                result = res.data.openAIResponse;
-            }
+            let result = processRepsonse(res.data.openAIResponse);
             setResponses(prevResponses => [...prevResponses, result]);
             setCurrentVersion(prevCurrentVersion => {
                 return prevCurrentVersion + 1;
@@ -72,10 +61,15 @@ const AssignmentForm = ({mission})=>{
             axios.post("http://localhost:8080/api/suggest/v2",{
                 "short_description" : mission.shortDescription,
             }).then(res=>{
-                console.log(res.data.openAIResponse);         
-                let text = JSON.parse(res.data.openAIResponse);
-                let temp = `${text["improvement_description"]}\n\n${text["specific_instruction_to_student"]} \n\n${text["task_to_do"]}\n\n${text["student_revise_essay"]}`;
-                console.log(text);
+                
+                // let t1= res.data.openAIResponse;
+                // let show = t1.replace("```JSON", "");
+                // show = show.replace("```","");
+                // console.log(show.replace("```","")); 
+                // let text = JSON.parse(t1.replace("JSON", ""));
+                // let temp = `${text["improvement_description"]}\n\n${text["specific_instruction_to_student"]} \n\n${text["task_to_do"]}\n\n${text["student_revise_essay"]}`;
+                let temp = processRepsonse(res.data.openAIResponse);
+                console.log(temp);
                 setIsLoading(false);
                 setText(temp);
                 setShowModal(true); // Show the modal after getting response
