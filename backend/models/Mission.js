@@ -57,6 +57,34 @@ class Mission{
             });
         });
     }
-    
+
+    static async updateMission(missionID, fullDescription, fullMark) {
+        console.log(missionID, fullDescription, fullMark)
+        return new Promise((resolve, reject) => {
+            const sql = 'UPDATE Mission SET fullDescription = ?, fullMark = ? WHERE MissionID = ?';
+
+            db.query(sql, [fullDescription, fullMark, missionID], (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+    }
+    static async submitMission(missionID, studentText) {
+        console.log(missionID, studentText)
+        return new Promise((resolve, reject) => {
+            const sql = 'UPDATE Mission SET studentText = ? WHERE MissionID = ?';
+
+            db.query(sql, [studentText, missionID], (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+    }
 }
 module.exports = Mission;

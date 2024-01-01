@@ -88,3 +88,50 @@ exports.deleteMission = async (req, res) => {
     }
 };
 
+exports.updateMissionDetail = async (req,res) => {
+    if (!req.body.missionID || typeof req.body.missionID !== 'number') {
+        return res.status(400).json({ message: "The 'missionID' parameter is required and must be a number." });
+    }
+    if(!req.body.fullDescription || !req.body.fullMark){
+        return res.status(400).json({ message: "The 'fullDescription' and 'fullMark' parameters are required." });
+    }
+    try{
+        // Call the updateMission method with the parameters from the request body
+        const result = await Mission.updateMission(req.body.missionID, req.body.fullDescription, req.body.fullMark);
+        console.log(result);
+        // Check if the mission was successfully updated
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Mission not found with provided ID." });
+        }
+
+        res.status(200).json({ message: "Mission updated successfully"});
+    }
+    catch (error) {
+        console.log(error)
+        res.status(500).json({ message: "Error in update mission", error: error.message });
+    }
+}
+
+exports.submitMission = async (req,res) => {
+    if (!req.body.missionID || typeof req.body.missionID !== 'number') {
+        return res.status(400).json({ message: "The 'missionID' parameter is required and must be a number." });
+    }
+    if(!req.body.studentText ){
+        return res.status(400).json({ message: "The 'studentText' parameter is required." });
+    }
+    try{
+        // Call the updateMission method with the parameters from the request body
+        const result = await Mission.submitMission(req.body.missionID, req.body.studentText);
+        console.log(result);
+        // Check if the mission was successfully updated
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Mission not found with provided ID." });
+        }
+
+        res.status(200).json({ message: "Mission submitted successfully"});
+    }
+    catch (error) {
+        console.log(error)
+        res.status(500).json({ message: "Error in update mission", error: error.message });
+    }
+}

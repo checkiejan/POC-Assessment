@@ -7,6 +7,8 @@ import axios from "axios";
 
 const AssignmentForm = ({mission})=>{
     const [text, setText] = useState('');
+    const [mark, setMark] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false); 
     const [showModal, setShowModal] = useState(false); // State to control the modal visibility
     const [responses, setResponses] = useState([]);
@@ -16,12 +18,25 @@ const AssignmentForm = ({mission})=>{
     const [botResponse, setBotResponse] = useState("");
     const handleSubmit = (event) => {
         event.preventDefault();
-        // Handle the form submission logic here
-        // console.log('Submitted Text:', text);
         console.log(process.env.REACT_APP_OPENAI_API_KEY);
+        axios.post("http://localhost:8080/api/mission/update",{
+            "missionID": mission.MissionID,
+            "fullDescription": text,
+            "fullMark": mark
+        }). then(res=>{
+            console.log(res)
+            setSuccessMessage('Mission updated successfully!');
+        })
+        .catch(err=>{
+            console.log(err);
+            setSuccessMessage('');
+        })
     };
     const handleImprovementChange = async (event) => {
         setSuggestion(event.target.value);
+    };
+    const handleMarkChange = (event) => {
+        setMark(event.target.value);
     };
     const switchVersion = (version) => {
         setCurrentVersion(version);
@@ -111,6 +126,23 @@ const AssignmentForm = ({mission})=>{
                     />
                 </div>                
             </div>
+            <div className="mb-4">
+                    <label htmlFor="markInput" className="block text-gray-700 text-sm font-bold mb-2">
+                        Enter Mark
+                    </label>
+                    <input
+                        type="number"
+                        id="markInput"
+                        style={{ width: '100px' }} // Inline style to control the width of mark input
+                        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={mark}
+                        min="0"
+                        onChange={handleMarkChange}
+                        placeholder="Mark"
+                        disabled={isLoading}
+                    />
+            </div>
+            {successMessage && <div className="text-green-500 mt-3 mb-4">{successMessage}</div>}
             <div className="flex justify-between space-x-4"> {/* Container for buttons with space */}
                     <button onClick={handleSuggest}
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

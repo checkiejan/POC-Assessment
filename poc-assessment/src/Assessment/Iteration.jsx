@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import SkillForm from "./SkillForm";
 import Dashboard from "../components/Dashboard/Dashboard";
 import axios from "axios";
 const Iteration = ({iteration})=>{
     const [missions,setMissions] = useState(iteration.missions);
     const [showSkillForm, setShowSkillForm] = useState(false); // State to track visibility of SkillForm
-
+    const navigate = useNavigate();
     const toggleSkillForm = () => {
         setShowSkillForm(!showSkillForm); // Toggle the state to show/hide SkillForm
     };
@@ -15,6 +16,9 @@ const Iteration = ({iteration})=>{
         }).then(res=>{
             setMissions(res.data.missions);
         })
+    }
+    const navigateToMission = ()=>{
+        navigate(`/iteration/${iteration.IterationID}`);
     }
     return(
         <div>
@@ -27,6 +31,7 @@ const Iteration = ({iteration})=>{
             {/* Conditionally render the SkillForm based on showSkillForm state */}
             {showSkillForm && <SkillForm iterationID={iteration.IterationID} />}
             <Dashboard missions={missions} iterationID={iteration.IterationID} fetchMissions={fetchMissions}/>
+
         </div>
     );
 }

@@ -3,7 +3,7 @@ import React from 'react';
 
 const Modal = ({ onClose, onSubmit, children, suggestion, onSuggestionChange }) => {
     return (
-        <div className="absolute left-full ml-4 top-0 ml-4 p-4 flex justify-center items-center" style={{ zIndex: 1000 }}>
+        <div className="absolute left-full ml-4 top-0 p-4 flex justify-center items-center" style={{ zIndex: 1000 }}>
             <div className="bg-white p-4 border border-gray-300 shadow-lg rounded-md">
                 <div>{children}</div>
                 <form onSubmit={onSubmit}>

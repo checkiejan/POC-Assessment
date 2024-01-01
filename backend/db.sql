@@ -27,7 +27,9 @@ CREATE TABLE Mission (
     finished BOOLEAN,
     dateCreated DATETIME,
     due DATETIME,
+    fullMark DECIMAL(5,2),
     mark DECIMAL(5,2),
+    studentText TEXT,
     feedback TEXT,
     FOREIGN KEY (IterationID) REFERENCES Iteration(IterationID)
 );

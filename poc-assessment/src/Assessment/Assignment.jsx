@@ -3,6 +3,7 @@ import Dashboard from "../components/Dashboard/Dashboard";
 import LoadingSpinner from "../common/LoadingSpinner";
 import Iteration from "./Iteration";
 import IterationForm from "./IterationForm";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
@@ -13,6 +14,7 @@ const Assignment = () => {
     const [iterations, setIterations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showIterationForm, setShowIterationForm] = useState(false); 
+    const navigate = useNavigate();
     const fetchMissions = async () => {
         try {
             const res = await axios.post("http://localhost:8080/api/mission/get", {
@@ -57,6 +59,12 @@ const Assignment = () => {
         fetchData();
     }, []);
 
+    const navigateToMission = (id)=>{
+        navigate(`/iteration/${id}`);
+    }
+    const navigateToMarking = (id)=>{
+        navigate(`/marking/${id}`);
+    }
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100">
@@ -73,8 +81,26 @@ const Assignment = () => {
             </button>
             {showIterationForm && <IterationForm assignmentID={1} />}
             {loading ? <LoadingSpinner/> : iterations.map((iteration) => (
-                <Iteration key={iteration.IterationID} iteration={iteration} />
+                <div>
+                    <Iteration key={iteration.IterationID} iteration={iteration} />
+                    <div className="flex justify-between"> {/* Flex container for equal width buttons */}
+                        <button 
+                            className="bg-blue-500 mb-4 text-white rounded-full py-2 px-4 flex-1 mx-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50 transition ease-in-out duration-300"
+                            onClick={()=>navigateToMission(iteration.IterationID)} 
+                            >
+                            Create Assessment
+                        </button>
+                        <button 
+                            className="bg-blue-500 mb-4 text-white rounded-full py-2 px-4 flex-1 mx-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50 transition ease-in-out duration-300"
+                            onClick={()=>navigateToMarking(iteration.IterationID)} 
+                            >
+                            Marking
+                        </button>
+                    </div>
+                </div>
+                
             ))}
+
         </div>
     );
 }
