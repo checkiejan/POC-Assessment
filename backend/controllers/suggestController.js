@@ -6,6 +6,7 @@ const PineconeStoreModule =  require( "langchain/vectorstores/pinecone");
 const OpenAIEmbeddingsModule = require( "langchain/embeddings/openai");
 const PineconeModule = require("@pinecone-database/pinecone");
 const ChatOpenAI = require("langchain/chat_models/openai");
+const LLMChain = require("langchain/chains")
 require('dotenv').config();
 
 const pinecone = new PineconeModule.Pinecone();
@@ -187,4 +188,12 @@ exports.createAdjustment = async (req,res)=>{
         console.log(error);
         res.status(500).json({ message: "Error in fetching data from OpenAI", error: error.message });
     }
+}
+
+const multiQuery = async ()=>{
+    const llm_query =  new ChatOpenAI.ChatOpenAI({
+        temperature: 0.0,
+        modelName: 'gpt-3.5-turbo-1106',
+        openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+    });
 }
