@@ -7,10 +7,15 @@ const OpenAIEmbeddingsModule = require( "langchain/embeddings/openai");
 const PineconeModule = require("@pinecone-database/pinecone");
 const ChatOpenAI = require("langchain/chat_models/openai");
 const LLMChain = require("langchain/chains")
+const MultiQueryRetriever = require("langchain/retrievers/multi_query")
+const LineListOutputParser = require("../utils/LineListOutputParser");
 require('dotenv').config();
 
 const pinecone = new PineconeModule.Pinecone();
 const OpenAIEmbeddings = new OpenAIEmbeddingsModule.OpenAIEmbeddings();
+const pineconeIndex = pinecone.index(process.env.PINECONE_INDEX);        
+const vectorStore = new PineconeStoreModule.PineconeStore( OpenAIEmbeddings,
+    { pineconeIndex})
 // PineconeStore.pineconeIndex = process.env.PINECONE_INDEX;
 // const pinecone = new Pinecone();
 // pinecone.init({
@@ -70,9 +75,6 @@ exports.createSuggestion = async (req,res) =>{
 
 exports.createSuggestionV2 = async (req,res)=>{
     try {
-        const pineconeIndex = pinecone.index(process.env.PINECONE_INDEX);        
-        const vectorStore = new PineconeStoreModule.PineconeStore( OpenAIEmbeddings,
-            { pineconeIndex})
         let prompt_template = `
         Objective:
         Provide concise, actionable feedback to a student by using the teacher's brief improvement notes, the student's essay, and the teaching materials. Guide the student through revising their essay with an emphasis on conceptual understanding and application of the feedback.
@@ -190,10 +192,68 @@ exports.createAdjustment = async (req,res)=>{
     }
 }
 
-const multiQuery = async ()=>{
-    const llm_query =  new ChatOpenAI.ChatOpenAI({
-        temperature: 0.0,
-        modelName: 'gpt-3.5-turbo-1106',
-        openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
-    });
+const multiQuery = async (query,k=4)=>{
+   
+    try{
+        const llm_query =  new ChatOpenAI.ChatOpenAI({
+            temperature: 0.0,
+            modelName: 'gpt-3.5-turbo-1106',
+            openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+        });
+        const template = `
+        You are an AI language model assistant. Your task is to generate five
+        different versions of the given user question to retrieve relevant documents from a vector
+        database. The user questions are focused on teaching material to help improve english skills for students
+        By generating multiple perspectives on the user question, your goal is to help
+        the user overcome some of the limitations of the distance-based similarity search and
+        we want to get a variety of RELEVANT search results.
+        Provide these alternative questions separated by newlines.
+        Original question: {question}
+        `;
+        const query_prompt = new PromptTemplate.PromptTemplate({
+            template: template, 
+            inputVariables:["question"]
+        });
+        console.log("Adad")
+        const llm_chain = new LLMChain.LLMChain({
+            llm: llm_query,
+            prompt: query_prompt,
+            outputParser: new LineListOutputParser(),
+        });
+        const retriever = new MultiQueryRetriever.MultiQueryRetriever({
+            llmChain: llm_chain,
+            retriever: vectorStore.asRetriever(),
+            // retriever: vectorStore.asRetriever(top_k=k),
+            parserKey: "lines",
+            // verbose: true,
+        });
+        const result = await retriever.getRelevantDocuments(query);
+        // let result = await query_prompt.format({question:query});
+        console.log(result);
+        return result
+    }
+    catch (error){
+        console.log(error);
+        return error
+    }
+}
+
+exports.testMultiQuery = async (req,res)=>{
+    if(!req.body.query){
+        return res.status(400).json({
+            success: false,
+            message: "Missing attribute `query` in the request body."
+        })
+    }
+    try{
+        const result = await multiQuery(req.body.query);
+        res.status(200).json({
+            message: "Successfully created suggestion!",
+            openAIResponse: result.map(x=>x.pageContent), // Assuming the response data is what you want to send
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Error in retrieving data", error: error.message });
+    }
 }
