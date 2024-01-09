@@ -7,8 +7,10 @@ const OpenAIEmbeddingsModule = require( "langchain/embeddings/openai");
 const PineconeModule = require("@pinecone-database/pinecone");
 const ChatOpenAI = require("langchain/chat_models/openai");
 const LLMChain = require("langchain/chains")
-const MultiQueryRetriever = require("langchain/retrievers/multi_query")
+const {MultiQueryRetriever} = require("langchain/retrievers/multi_query")
 const LineListOutputParser = require("../utils/LineListOutputParser");
+const Mission = require("../models/Mission");
+const parseJSON = require("../utils/parseJSON")
 require('dotenv').config();
 
 const pinecone = new PineconeModule.Pinecone();
@@ -74,6 +76,10 @@ exports.createSuggestion = async (req,res) =>{
 }
 
 exports.createSuggestionV2 = async (req,res)=>{
+    req.body.iterationID = parseInt(req.body.iterationID);
+    if (!req.body.iterationID || typeof req.body.iterationID !== 'number') {
+        return res.status(400).json({ message: "The 'iterationID' parameter is required and must be a number." });
+    }
     try {
         let prompt_template = `
         Objective:
@@ -111,14 +117,17 @@ exports.createSuggestionV2 = async (req,res)=>{
         let assignment = await Assignment.getStudentText(1);
         const essay = assignment[0].StudentText;
         const top_k=5;
-       
-        const search = await  vectorStore.similaritySearch(improvement,top_k);
+        const retreiver = vectorStore.asRetriever(search_kwargs={'filter':{'iterationID': req.body.iterationID},"k":top_k});
+        // const search = await  retreiver.getRelevantDocuments(improvement);
+        const search = await multiQueryCustomPrompt(improvement,iterationID= req.body.iterationID,k=top_k);
+        
         const search_extracted = search.map(x=>x.pageContent);
         const llm = new ChatOpenAI.ChatOpenAI({
             temperature: 0.5,
             modelName: 'gpt-4-1106-preview',
             openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
           });
+        console.log(search_extracted)
         const query = await PROMPT.format({
             context: search_extracted,
             improvement: improvement,
@@ -192,7 +201,7 @@ exports.createAdjustment = async (req,res)=>{
     }
 }
 
-const multiQuery = async (query,k=4)=>{
+const multiQueryCustomPrompt = async (query,iterationID,k=4)=>{
    
     try{
         const llm_query =  new ChatOpenAI.ChatOpenAI({
@@ -220,12 +229,11 @@ const multiQuery = async (query,k=4)=>{
             prompt: query_prompt,
             outputParser: new LineListOutputParser(),
         });
-        const retriever = new MultiQueryRetriever.MultiQueryRetriever({
+        const retriever = new MultiQueryRetriever({
             llmChain: llm_chain,
-            retriever: vectorStore.asRetriever(),
-            // retriever: vectorStore.asRetriever(top_k=k),
+            retriever: vectorStore.asRetriever(search_kwargs={'filter':{'iterationID': iterationID}}),
             parserKey: "lines",
-            // verbose: true,
+            verbose: true,
         });
         const result = await retriever.getRelevantDocuments(query);
         // let result = await query_prompt.format({question:query});
@@ -238,6 +246,25 @@ const multiQuery = async (query,k=4)=>{
     }
 }
 
+const multiQueryDefault = async (query)=>{
+    const llm_query =  new ChatOpenAI.ChatOpenAI({
+        temperature: 0.0,
+        modelName: 'gpt-3.5-turbo-1106',
+        openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+    });
+    console.log(MultiQueryRetriever)
+    const retriever = MultiQueryRetriever.fromLLM({
+        llm: llm_query,
+        retriever: vectorStore.asRetriever(search_kwargs={'filter':{'title': "Oedipus, King of Thebes"}}),
+        // metadata: {},
+    });
+    const result = await retriever.getRelevantDocuments(query);
+    // let result = await query_prompt.format({question:query});
+    console.log(result);
+    return result
+
+}
+
 exports.testMultiQuery = async (req,res)=>{
     if(!req.body.query){
         return res.status(400).json({
@@ -246,10 +273,76 @@ exports.testMultiQuery = async (req,res)=>{
         })
     }
     try{
-        const result = await multiQuery(req.body.query);
+        const result = await multiQueryCustomPrompt(req.body.query);
+        // const result = await multiQueryDefault(req.body.query)
         res.status(200).json({
             message: "Successfully created suggestion!",
             openAIResponse: result.map(x=>x.pageContent), // Assuming the response data is what you want to send
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Error in retrieving data", error: error.message });
+    }
+}
+
+exports.suggestMarking = async (req,res)=>{
+    req.body.missionID = parseInt(req.body.missionID);
+    if (!req.body.missionID || typeof req.body.missionID !== 'number') {
+        return res.status(400).json({ message: "The 'iterationID' parameter is required and must be a number." });
+    }
+    try{
+        let prompt_template = `
+        Role:
+    As a virtual teaching assistant, evaluate and score a student's assignment against the provided full mark criteria. 
+    Provide constructive feedback and suggest ways for the student to improve in future assignments.
+
+    Input:
+    Assignment: {assignment}
+    Full Mark: {full_mark}
+    Student Work: {student_work}
+    Task:
+    Assess the student's work in comparison to the assignment criteria.
+    Determine the score the student has earned out of the full mark.
+    Compose friendly and constructive feedback for the student.
+    Offer suggestions for improvement that the student can apply in subsequent tasks.
+    Response Format:
+    Your response should be structured in JSON format as follows:
+
+    
+    "mark": "<assigned_mark>",
+    "feedback": "<constructive_feedback>",
+    "suggestions": "<recommendations_for_improvement>"
+    
+    The mark should reflect the student's performance as a score out of the full mark.
+    The feedback should be encouraging and provide specific insights into the student's work.
+    The suggestions should give actionable advice for future enhancements.
+        
+        `
+        
+        const PROMPT = new PromptTemplate.PromptTemplate({
+            template: prompt_template, 
+            inputVariables:["assignment", "full_mark","student_work"]
+        });
+        
+        const mission = await Mission.getMissionByID(req.body.missionID);
+        const llm = new ChatOpenAI.ChatOpenAI({
+            temperature: 0.5,
+            modelName: 'gpt-4-1106-preview',
+            openAIApiKey:  process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+          });
+        
+        const query = await PROMPT.format({
+            assignment: mission[0].fullDescription,
+            full_mark: mission[0].fullMark,
+            student_work: mission[0].studentText
+        })
+        console.log(query.length)
+        const result = await llm.predict(text = query)
+        res.status(200).json({
+            message: "Successfully created suggestion!",
+            result: parseJSON(result), // Assuming the response data is what you want to send
+            initialPrompt: query,
         });
     }
     catch(error){

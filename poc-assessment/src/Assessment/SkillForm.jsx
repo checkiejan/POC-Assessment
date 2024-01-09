@@ -20,6 +20,10 @@ const SkillForm = ({iterationID,fetchMission})=>{
             "shortDescription": formData.description,
         }).then(res=>{
            console.log(res);
+           if(fetchMission)
+           {
+                fetchMission();
+           }
         //    fetchMission();
         }).catch(err=>{
             console.log(err);

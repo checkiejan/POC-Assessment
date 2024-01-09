@@ -44,11 +44,11 @@ const IterationPage = ()=>{
              <h1 className="text-2xl font-bold text-center mb-4">Iteration {order + 1}</h1>
              <Iteration  iteration={iteration} />
              <h3 className="text-xl font-semibold text-center mb-2">Upload text book or knowledge to the model</h3>
-             <FileUpload/>
+             <FileUpload iteration={iteration}/>
             {
                 iteration.missions.map((mission)=>{
                     return (
-                        <AssignmentForm key = {mission.MissionID} mission={mission}/>
+                        <AssignmentForm key = {mission.MissionID} iterationID={iteration.IterationID} mission={mission}/>
                     )
                 })
             } 

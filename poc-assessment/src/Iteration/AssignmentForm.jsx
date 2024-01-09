@@ -5,7 +5,7 @@ import processRepsonse from "../utils/processResponse";
 import Modal from "./Modal";
 import axios from "axios";
 
-const AssignmentForm = ({mission})=>{
+const AssignmentForm = ({mission, iterationID})=>{
     const [text, setText] = useState('');
     const [mark, setMark] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -23,7 +23,7 @@ const AssignmentForm = ({mission})=>{
             "missionID": mission.MissionID,
             "fullDescription": text,
             "fullMark": mark
-        }). then(res=>{
+        }).then(res=>{
             console.log(res)
             setSuccessMessage('Mission updated successfully!');
         })
@@ -75,6 +75,7 @@ const AssignmentForm = ({mission})=>{
             setIsLoading(true);
             axios.post("http://localhost:8080/api/suggest/v2",{
                 "short_description" : mission.shortDescription,
+                "iterationID": iterationID,
             }).then(res=>{
                 
                 // let t1= res.data.openAIResponse;

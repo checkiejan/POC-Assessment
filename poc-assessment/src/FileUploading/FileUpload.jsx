@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import axios from "axios";
-function FileUpload() {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // New state for success message
 
+function FileUpload({iteration}) {
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [title, setTitle] = useState(''); // State to hold the title
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -12,51 +13,69 @@ function FileUpload() {
             setSelectedFile(file);
             setErrorMessage('');
             setSuccessMessage('');
+            const fileName = file.name.replace(/\.[^/.]+$/, ""); // Remove file extension
+            setTitle(fileName); // Set the title to the file name
         } else {
+            setSuccessMessage(''); // Clear the success message
             setErrorMessage('Only PDF files are allowed.');
             setSelectedFile(null);
         }
     };
 
+    const handleTitleChange = (event) => {
+        setTitle(event.target.value);
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (!selectedFile) {
-            return; // No file selected (or wrong file type), so don't submit
+        if (title.trim() === '') {
+            setErrorMessage('Please enter a title.');
+            setSuccessMessage(''); // Clear the success message
+            return;
         }
 
+        if (!selectedFile) {
+            setErrorMessage('Please select a PDF file.');
+            setSuccessMessage(''); // Clear the success message
+            return;
+        }
+
+        const iterationIDNumber = parseInt(iteration.IterationID);
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append("test","test")
-        // Here you would typically send the form data to the server
-        // For example: axios.post('/api/upload', formData);
-         // Send the form data to the server
-        console.log(formData);
-        axios.post('http://localhost:8080/api/knowledge/add', formData
-        ,{
+        formData.append('iterationID', iterationIDNumber); // Add the assignment ID to the form data
+        formData.append('title', title); // Add the title to the form data
+        axios.post('http://localhost:8080/api/knowledge/add', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
-        }
-        )
+        })
         .then(response => {
-            console.log( response.data);
+            console.log(response.data);
             if (response.data.status === 'success') {
                 setSuccessMessage(response.data.message);
+                setErrorMessage("");
+                setTitle(''); // Clear the title state
+                setSelectedFile(null); // Clear the file selection
             }
         })
         .catch(error => {
             console.error(error);
             setErrorMessage(error.message);
         });
-
-        // Clear the selected file
-        // setSelectedFile(null);
     };
 
     return (
         <div className="flex flex-col items-center justify-center p-6">
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <input 
+                    type="text" 
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Enter title"
+                    className="block w-full text-sm text-gray-500 py-2 px-4 border rounded"
+                />
                 <input 
                     type="file" 
                     onChange={handleFileChange} 

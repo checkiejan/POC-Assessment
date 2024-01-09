@@ -42,6 +42,15 @@ CREATE TABLE StudentSubmission (
     FOREIGN KEY (AssignmentID) REFERENCES Assignment(AssignmentID)
 );
 
+DROP TABLE IF EXISTS MissionDocument;
+CREATE TABLE MissionDocument (
+    DocumentID CHAR(36) PRIMARY KEY, 
+    IterationID INT,
+    Title VARCHAR(255),
+    DateAdded DATETIME,
+    FOREIGN KEY (IterationID) REFERENCES Iteration(IterationID)
+);
+
 DROP USER IF EXISTS 'poc-assessment-admin'@'localhost';
 CREATE USER 'poc-assessment-admin'@'localhost' IDENTIFIED WITH mysql_native_password BY'12345678';
 GRANT ALL PRIVILEGES ON POC.* TO 'poc-assessment-admin'@'localhost';

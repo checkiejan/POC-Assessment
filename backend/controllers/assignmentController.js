@@ -42,7 +42,7 @@ exports.getAssignmentDescription = async (req,res)=>{
                 missions: missions
             };
         }));
-        console.log(iterationsWithMissions);
+        // console.log(iterationsWithMissions);
         res.status(200).json({
             assignmentID: assignmentID,
             iterations: iterationsWithMissions

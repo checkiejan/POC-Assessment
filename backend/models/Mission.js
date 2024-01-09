@@ -86,5 +86,19 @@ class Mission{
             });
         });
     }
+    static async getMissionByID(missionID) {
+        return new Promise((resolve, reject) => {
+            const query = 'SELECT * FROM Mission WHERE MissionID = ?';
+
+            db.query(query, [missionID], (err, res) => {
+                if (err) {
+                    console.log(err);
+                    return reject(err);
+                }
+                resolve(res);
+            });
+        });
+    }
+
 }
 module.exports = Mission;

@@ -8,4 +8,5 @@ router.post("/", suggestController.createSuggestion);
 router.post("/v2", suggestController.createSuggestionV2);
 router.post("/adjust", suggestController.createAdjustment);
 router.post("/multi-query", suggestController.testMultiQuery);
+router.post("/suggest-mark", suggestController.suggestMarking);
 module.exports = router;

@@ -1,5 +1,4 @@
 import AssignmentDescription from "./AssignmentDescription";
-import Dashboard from "../components/Dashboard/Dashboard";
 import LoadingSpinner from "../common/LoadingSpinner";
 import Iteration from "./Iteration";
 import IterationForm from "./IterationForm";
@@ -10,21 +9,21 @@ import { useState, useEffect } from "react";
 const Assignment = () => {
     const [description, setDescription] = useState("");
     const [studentText, setStudentText] = useState("");
-    const [missions, setMissions] = useState([]);
+    // const [missions, setMissions] = useState([]);
     const [iterations, setIterations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showIterationForm, setShowIterationForm] = useState(false); 
     const navigate = useNavigate();
-    const fetchMissions = async () => {
-        try {
-            const res = await axios.post("http://localhost:8080/api/mission/get", {
-                "assignmentID": 1,
-            });
-            setMissions(res.data.missions);
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    // const fetchMissions = async () => {
+    //     try {
+    //         const res = await axios.post("http://localhost:8080/api/mission/get", {
+    //             "assignmentID": 1,
+    //         });
+    //         setMissions(res.data.missions);
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
     const toggleIterationForm = () => {
         setShowIterationForm(!showIterationForm); // Toggle the state to show/hide SkillForm
     };
@@ -79,7 +78,7 @@ const Assignment = () => {
                 onClick={toggleIterationForm} >
                 {showIterationForm ? 'Hide Iteration Form' : 'Add Iteration'}
             </button>
-            {showIterationForm && <IterationForm assignmentID={1} />}
+            {showIterationForm && <IterationForm fetchIteration={fetchIterations} assignmentID={1} />}
             {loading ? <LoadingSpinner/> : iterations.map((iteration) => (
                 <div>
                     <Iteration key={iteration.IterationID} iteration={iteration} />

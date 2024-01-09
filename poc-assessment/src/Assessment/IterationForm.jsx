@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-const SkillForm = ({assignmentID,fetchMission})=>{
+const SkillForm = ({assignmentID,fetchIteration})=>{
     const [formData, setFormData] = useState({
         description: "",
     });
@@ -17,6 +17,11 @@ const SkillForm = ({assignmentID,fetchMission})=>{
             "shortDescription": formData.description,
         }).then(res=>{
            console.log(res);
+           if(fetchIteration)
+           {
+                console.log("fetching");
+                fetchIteration();
+           }
         //    fetchMission();
         }).catch(err=>{
             console.log(err);
