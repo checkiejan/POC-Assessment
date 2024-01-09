@@ -1,5 +1,4 @@
 import AssignmentForm from "./AssignmentForm";
-import Dashboard from "../components/Dashboard/Dashboard";
 import Iteration from "../Assessment/Iteration";
 import LoadingSpinner from "../common/LoadingSpinner";
 import FileUpload from "../FileUploading/FileUpload";
@@ -12,13 +11,6 @@ const IterationPage = ()=>{
     const [order,setOrder] = useState();
     const [loading, setLoading] = useState(true);
     const { iterationID } = useParams();
-    const fetchMissions = async()=>{
-        axios.post("http://localhost:8080/api/mission/get",{
-            "iterationID": iteration.IterationID,
-        }).then(res=>{
-            setMissions(res.data.missions);
-        })
-    }
     const fetchIterations = async () => {
         try {
             const res = await axios.post("http://localhost:8080/api/assignment/fetch-mission", {
